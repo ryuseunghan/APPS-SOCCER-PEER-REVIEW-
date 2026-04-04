@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "MatchRate — 경기 후 30초, 팀원이 보는 내 진짜 레이팅",
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full">
       <body className="min-h-full flex flex-col bg-[#0D1B3E] text-white">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ClubBadge from "@/components/ClubBadge";
+import { signIn } from "@/auth";
 
 export default function LandingPage() {
   return (
@@ -33,19 +34,34 @@ export default function LandingPage() {
 
         {/* CTA */}
         <div className="space-y-4">
-          <Link
-            href="/home"
-            className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-[#FEE500] text-[#1A1A1A] font-semibold text-base transition-opacity hover:opacity-90 active:opacity-80"
+          <form
+            action={async () => {
+              "use server";
+              await signIn("kakao", { redirectTo: "/home" });
+            }}
           >
-            <span className="text-xl">🟡</span>
-            카카오로 시작하기
-          </Link>
+            <button
+              type="submit"
+              className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-[#FEE500] text-[#1A1A1A] font-semibold text-base transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              <span className="text-xl">🟡</span>
+              카카오로 시작하기
+            </button>
+          </form>
 
           <div className="text-center">
             <span className="text-[#7B9DD4] text-sm">이미 계정이 있으신가요? </span>
-            <Link href="/home" className="text-[#22C55E] text-sm font-medium underline underline-offset-2">
-              로그인
-            </Link>
+            <form
+              className="inline"
+              action={async () => {
+                "use server";
+                await signIn("kakao", { redirectTo: "/home" });
+              }}
+            >
+              <button type="submit" className="text-[#22C55E] text-sm font-medium underline underline-offset-2">
+                로그인
+              </button>
+            </form>
           </div>
         </div>
       </div>

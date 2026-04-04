@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import ClubBadge from "@/components/ClubBadge";
 
 const tabs = [
@@ -74,6 +75,7 @@ const tabs = [
 
 export default function SideNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <aside className="hidden lg:flex flex-col w-60 min-h-screen bg-[#1B2B5E] border-r border-[#243570] sticky top-0">
@@ -114,9 +116,40 @@ export default function SideNav() {
         })}
       </nav>
 
-      {/* Bottom */}
-      <div className="px-5 py-4 border-t border-[#243570]">
-        <p className="text-[#4B5563] text-xs">MatchRate v1.0</p>
+      {/* Bottom — 유저 정보 + 로그아웃 */}
+      <div className="px-4 py-4 border-t border-[#243570] space-y-3">
+        {session?.user && (
+          <div className="flex items-center gap-2.5">
+            {session.user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={session.user.image}
+                alt={session.user.name ?? ""}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#243570] flex items-center justify-center text-[#7B9DD4] text-sm font-bold">
+                {session.user.name?.[0] ?? "?"}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-medium truncate">{session.user.name}</p>
+              {session.user.email && (
+                <p className="text-[#4B5563] text-[10px] truncate">{session.user.email}</p>
+              )}
+            </div>
+          </div>
+        )}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[#7B9DD4] hover:bg-[#243570] hover:text-white transition-all text-sm"
+        >
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          로그아웃
+        </button>
+        <p className="text-[#4B5563] text-xs px-1">MatchRate v1.0</p>
       </div>
     </aside>
   );
