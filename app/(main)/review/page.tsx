@@ -27,12 +27,17 @@ const completedReviews = [
 export default function ReviewListPage() {
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#1B2B5E] px-4 py-4 border-b border-[#243570]">
+      {/* 모바일 헤더 */}
+      <header className="lg:hidden sticky top-0 z-10 bg-[#1B2B5E] px-4 py-4 border-b border-[#243570]">
         <h1 className="text-lg font-bold text-white">리뷰</h1>
       </header>
 
-      <div className="flex-1 px-4 py-4 space-y-6">
+      {/* 데스크탑 헤더 */}
+      <header className="hidden lg:flex sticky top-0 z-10 bg-[#0D1B3E]/80 backdrop-blur-sm px-8 py-4 items-center border-b border-[#243570]">
+        <h1 className="text-xl font-bold text-white">리뷰</h1>
+      </header>
+
+      <div className="flex-1 px-4 lg:px-8 py-4 lg:py-6 space-y-6 lg:max-w-2xl">
         {/* 대기 중 */}
         {pendingReviews.length > 0 && (
           <section>

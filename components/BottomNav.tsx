@@ -88,10 +88,10 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#1B2B5E] border-t border-[#243570]"
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1B2B5E] border-t border-[#243570]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="max-w-lg mx-auto flex h-16">
+      <div className="flex h-16">
         {tabs.map((tab) => {
           const active = pathname.startsWith(tab.href);
           return (

@@ -74,33 +74,35 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
   // ── Step: INTRO ─────────────────────────────────────
   if (step === "intro") {
     return (
-      <div className="flex flex-col min-h-screen bg-[#0D1B3E] px-6 py-8">
-        <button
-          onClick={() => router.back()}
-          className="self-start mb-6 text-[#7B9DD4] flex items-center gap-1"
-        >
-          ← 경기 리뷰
-        </button>
-
-        <div className="flex-1 flex flex-col justify-center items-center text-center gap-8">
-          <div className="space-y-2">
-            <p className="text-2xl font-bold text-white">오늘 경기 어땠나요?</p>
-            <p className="text-[#7B9DD4]">팀원들에게 솔직한 피드백을 남겨주세요.</p>
-          </div>
-
-          <div className="bg-[#1B2B5E] rounded-2xl px-6 py-4 flex items-center gap-3">
-            <span className="text-2xl">⏱</span>
-            <p className="text-[#22C55E] font-semibold">30초이면 충분해요</p>
-          </div>
-
+      <div className="flex flex-col min-h-screen bg-[#0D1B3E] px-6 lg:px-0 py-8 lg:items-center lg:justify-center">
+        <div className="w-full lg:max-w-md lg:mx-auto">
           <button
-            onClick={() => setStep("review")}
-            className="w-full py-4 bg-[#22C55E] text-white rounded-full font-bold text-lg hover:bg-[#4ADE80] transition-colors"
+            onClick={() => router.back()}
+            className="self-start mb-6 text-[#7B9DD4] flex items-center gap-1"
           >
-            지금 시작하기 →
+            ← 경기 리뷰
           </button>
 
-          <p className="text-[#7B9DD4] text-sm">(익명으로 진행됩니다)</p>
+          <div className="flex flex-col justify-center items-center text-center gap-8">
+            <div className="space-y-2">
+              <p className="text-2xl font-bold text-white">오늘 경기 어땠나요?</p>
+              <p className="text-[#7B9DD4]">팀원들에게 솔직한 피드백을 남겨주세요.</p>
+            </div>
+
+            <div className="bg-[#1B2B5E] rounded-2xl px-6 py-4 flex items-center gap-3">
+              <span className="text-2xl">⏱</span>
+              <p className="text-[#22C55E] font-semibold">30초이면 충분해요</p>
+            </div>
+
+            <button
+              onClick={() => setStep("review")}
+              className="w-full py-4 bg-[#22C55E] text-white rounded-full font-bold text-lg hover:bg-[#4ADE80] transition-colors"
+            >
+              지금 시작하기 →
+            </button>
+
+            <p className="text-[#7B9DD4] text-sm">(익명으로 진행됩니다)</p>
+          </div>
         </div>
       </div>
     );
@@ -116,9 +118,9 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
     const currentTeam = currentPlayer.team;
 
     return (
-      <div className="flex flex-col min-h-screen bg-[#0D1B3E]">
+      <div className="flex flex-col min-h-screen bg-[#0D1B3E] lg:items-center">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-[#0D1B3E] px-4 pt-4 pb-3 space-y-3">
+        <div className="sticky top-0 z-10 bg-[#0D1B3E] px-4 lg:px-0 pt-4 pb-3 space-y-3 w-full lg:max-w-md">
           <div className="flex items-center justify-between">
             <button onClick={() => setStep("intro")} className="text-[#7B9DD4] text-sm">
               ←
@@ -136,7 +138,7 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
           </div>
         </div>
 
-        <div className="flex-1 px-4 py-4 overflow-y-auto">
+        <div className="flex-1 px-4 lg:px-0 py-4 overflow-y-auto w-full lg:max-w-md">
           {/* Team tag */}
           <div className="flex justify-center mb-4">
             <span className="px-3 py-1 rounded-full bg-[#243570] text-[#7B9DD4] text-xs font-semibold">
@@ -217,13 +219,14 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
   // ── Step: MVP ────────────────────────────────────────
   if (step === "mvp") {
     return (
-      <div className="flex flex-col min-h-screen bg-[#0D1B3E] px-4 py-8">
+      <div className="flex flex-col min-h-screen bg-[#0D1B3E] px-4 lg:px-0 py-8 lg:items-center lg:justify-center">
+        <div className="w-full lg:max-w-md">
         <div className="text-center mb-8 space-y-2">
           <p className="text-2xl font-bold text-white">MVP를 뽑아주세요!</p>
           <p className="text-[#7B9DD4]">오늘 가장 빛났던 선수</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
           {PLAYERS.map((p) => {
             const isSelf = p.id === MY_ID;
             const isSelected = selectedMvp === p.id;
@@ -267,6 +270,7 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
         >
           투표 완료 →
         </button>
+        </div>
       </div>
     );
   }
@@ -275,45 +279,47 @@ export default function ReviewFlow({ matchId }: { matchId: string }) {
   const myRatings = [4.3, 4.5, 3.8, 4.6]; // mock: [overall, skill, stamina, teamplay]
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0D1B3E] px-4 py-12 items-center justify-center text-center gap-8">
-      <div className="text-6xl animate-bounce">🎉</div>
+    <div className="flex flex-col min-h-screen bg-[#0D1B3E] py-12 items-center justify-center text-center gap-8">
+      <div className="w-full max-w-sm px-4">
+        <div className="text-6xl animate-bounce mb-2">🎉</div>
 
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold text-white">리뷰 완료!</h2>
-        <p className="text-[#7B9DD4]">팀원 9명 중 7명이 이미 리뷰를 남겼어요</p>
-      </div>
-
-      {/* Result card */}
-      <div className="w-full bg-[#1B2B5E] rounded-2xl p-6 space-y-4 animate-count-up animate-glow">
-        <p className="text-[#7B9DD4] text-sm">내 이번 경기 레이팅</p>
-
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-5xl font-bold text-[#22C55E]">
-            ★ {myRatings[0]}
-          </span>
+        <div className="space-y-1 mb-6">
+          <h2 className="text-2xl font-bold text-white">리뷰 완료!</h2>
+          <p className="text-[#7B9DD4]">팀원 9명 중 7명이 이미 리뷰를 남겼어요</p>
         </div>
 
-        <div className="flex justify-around pt-2 border-t border-[#243570]">
-          {["경기력", "체력", "태도"].map((label, i) => (
-            <div key={label} className="text-center">
-              <p className="text-[#7B9DD4] text-xs mb-1">{label}</p>
-              <p className="text-white font-bold">{myRatings[i + 1]}</p>
-            </div>
-          ))}
+        {/* Result card */}
+        <div className="w-full bg-[#1B2B5E] rounded-2xl p-6 space-y-4 animate-count-up animate-glow mb-6">
+          <p className="text-[#7B9DD4] text-sm">내 이번 경기 레이팅</p>
+
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-5xl font-bold text-[#22C55E]">
+              ★ {myRatings[0]}
+            </span>
+          </div>
+
+          <div className="flex justify-around pt-2 border-t border-[#243570]">
+            {["경기력", "체력", "태도"].map((label, i) => (
+              <div key={label} className="text-center">
+                <p className="text-[#7B9DD4] text-xs mb-1">{label}</p>
+                <p className="text-white font-bold">{myRatings[i + 1]}</p>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Share CTA */}
+        <button className="w-full py-4 bg-[#22C55E] text-white rounded-full font-bold text-base flex items-center justify-center gap-2 hover:bg-[#4ADE80] transition-colors mb-4">
+          <span>📤</span> 내 스탯 공유
+        </button>
+
+        <button
+          onClick={() => router.push("/home")}
+          className="text-[#7B9DD4] text-sm underline underline-offset-2"
+        >
+          홈으로 돌아가기
+        </button>
       </div>
-
-      {/* Share CTA */}
-      <button className="w-full py-4 bg-[#22C55E] text-white rounded-full font-bold text-base flex items-center justify-center gap-2 hover:bg-[#4ADE80] transition-colors">
-        <span>📤</span> 내 스탯 공유
-      </button>
-
-      <button
-        onClick={() => router.push("/home")}
-        className="text-[#7B9DD4] text-sm underline underline-offset-2"
-      >
-        홈으로 돌아가기
-      </button>
     </div>
   );
 }

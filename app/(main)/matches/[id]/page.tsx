@@ -40,86 +40,91 @@ export default async function MatchDetailPage({ params }: Params) {
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#1B2B5E] px-4 py-4 flex items-center gap-3 border-b border-[#243570]">
+      <header className="sticky top-0 z-10 bg-[#1B2B5E] lg:bg-[#0D1B3E]/80 lg:backdrop-blur-sm px-4 lg:px-8 py-4 flex items-center gap-3 border-b border-[#243570]">
         <Link href="/matches" className="text-[#7B9DD4] hover:text-white transition-colors">←</Link>
         <h1 className="text-lg font-bold text-white">{match.date} 경기</h1>
       </header>
 
-      <div className="flex-1 px-4 py-4 space-y-5">
-        {/* Score Card */}
-        <div className="bg-[#1B2B5E] rounded-2xl p-5 text-center space-y-3">
-          <p className="text-[#7B9DD4] text-xs">{match.date} · {match.time} · {match.place}</p>
+      <div className="flex-1 px-4 lg:px-8 py-4 lg:py-6">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-5 lg:space-y-0">
+          {/* 왼쪽: 스코어 + MVP + CTAs */}
+          <div className="space-y-5">
+            {/* Score Card */}
+            <div className="bg-[#1B2B5E] rounded-2xl p-5 text-center space-y-3">
+              <p className="text-[#7B9DD4] text-xs">{match.date} · {match.time} · {match.place}</p>
 
-          <div className="flex items-center justify-center gap-6">
-            {/* 우리팀 */}
-            <div className="text-center flex-1">
-              <p className="text-[#22C55E] text-xs font-semibold mb-1">우리팀</p>
-              <p className="text-5xl font-bold text-white">{match.ourScore}</p>
-            </div>
-
-            {/* 구분 */}
-            <div className="text-center">
-              <p className="text-[#7B9DD4] text-2xl font-bold">:</p>
-            </div>
-
-            {/* 상대팀 */}
-            <div className="text-center flex-1">
-              <p className="text-[#7B9DD4] text-xs font-semibold mb-1">상대팀</p>
-              <p className="text-5xl font-bold text-[#7B9DD4]">{match.opponentScore}</p>
-            </div>
-          </div>
-
-          {/* 결과 뱃지 */}
-          <div className="flex justify-center">
-            <span className={`text-xl font-bold ${resultColor}`}>
-              {resultLabel}
-            </span>
-          </div>
-        </div>
-
-        {/* 우리팀 참여 멤버 */}
-        <section>
-          <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3">
-            우리팀 참여 멤버 ({match.members.length}명)
-          </h2>
-          <div className="bg-[#1B2B5E] rounded-xl divide-y divide-[#243570]">
-            {match.members.map((p) => (
-              <div key={p.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <Avatar name={p.name} size="md" isMvp={p.id === match.mvp.id} />
-                  <div>
-                    <p className="text-white font-medium text-sm">{p.name}</p>
-                    <p className="text-[#7B9DD4] text-xs">{p.position}</p>
-                  </div>
+              <div className="flex items-center justify-center gap-6">
+                {/* 우리팀 */}
+                <div className="text-center flex-1">
+                  <p className="text-[#22C55E] text-xs font-semibold mb-1">우리팀</p>
+                  <p className="text-5xl font-bold text-white">{match.ourScore}</p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <RatingStar value={p.rating} size="sm" />
-                  <span className="text-[#22C55E] text-sm font-medium">{p.rating}</span>
+
+                {/* 구분 */}
+                <div className="text-center">
+                  <p className="text-[#7B9DD4] text-2xl font-bold">:</p>
+                </div>
+
+                {/* 상대팀 */}
+                <div className="text-center flex-1">
+                  <p className="text-[#7B9DD4] text-xs font-semibold mb-1">상대팀</p>
+                  <p className="text-5xl font-bold text-[#7B9DD4]">{match.opponentScore}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* MVP */}
-        <div className="bg-[#1B2B5E] rounded-2xl p-4 flex items-center gap-3">
-          <span className="text-2xl">🏆</span>
-          <div>
-            <p className="text-xs text-[#7B9DD4]">이 경기 MVP</p>
-            <p className="text-[#F59E0B] font-bold text-lg">{match.mvp.name}</p>
-          </div>
-        </div>
+              {/* 결과 뱃지 */}
+              <div className="flex justify-center">
+                <span className={`text-xl font-bold ${resultColor}`}>
+                  {resultLabel}
+                </span>
+              </div>
+            </div>
 
-        {/* CTAs */}
-        <div className="space-y-3">
-          <button className="w-full py-3 bg-[#243570] text-[#7B9DD4] rounded-full font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#3B5CB8] hover:text-white transition-colors">
-            <span>📤</span> 결과 공유
-          </button>
-          <Link href={`/review/${match.id}`}>
-            <button className="w-full py-3 bg-[#22C55E] text-white rounded-full font-bold text-sm hover:bg-[#4ADE80] transition-colors">
-              리뷰 작성 →
-            </button>
-          </Link>
+            {/* MVP */}
+            <div className="bg-[#1B2B5E] rounded-2xl p-4 flex items-center gap-3">
+              <span className="text-2xl">🏆</span>
+              <div>
+                <p className="text-xs text-[#7B9DD4]">이 경기 MVP</p>
+                <p className="text-[#F59E0B] font-bold text-lg">{match.mvp.name}</p>
+              </div>
+            </div>
+
+            {/* CTAs */}
+            <div className="space-y-3">
+              <button className="w-full py-3 bg-[#243570] text-[#7B9DD4] rounded-full font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#3B5CB8] hover:text-white transition-colors">
+                <span>📤</span> 결과 공유
+              </button>
+              <Link href={`/review/${match.id}`}>
+                <button className="w-full py-3 bg-[#22C55E] text-white rounded-full font-bold text-sm hover:bg-[#4ADE80] transition-colors">
+                  리뷰 작성 →
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* 오른쪽: 우리팀 참여 멤버 */}
+          <section>
+            <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3">
+              우리팀 참여 멤버 ({match.members.length}명)
+            </h2>
+            <div className="bg-[#1B2B5E] rounded-xl divide-y divide-[#243570]">
+              {match.members.map((p) => (
+                <div key={p.id} className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={p.name} size="md" isMvp={p.id === match.mvp.id} />
+                    <div>
+                      <p className="text-white font-medium text-sm">{p.name}</p>
+                      <p className="text-[#7B9DD4] text-xs">{p.position}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RatingStar value={p.rating} size="sm" />
+                    <span className="text-[#22C55E] text-sm font-medium">{p.rating}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </div>

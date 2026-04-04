@@ -44,8 +44,8 @@ export default function MatchesPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#1B2B5E] px-4 py-3 flex items-center justify-between border-b border-[#243570]">
+      {/* 모바일 헤더 */}
+      <header className="lg:hidden sticky top-0 z-10 bg-[#1B2B5E] px-4 py-3 flex items-center justify-between border-b border-[#243570]">
         <div className="flex items-center gap-2.5">
           <ClubBadge size={36} />
           <div>
@@ -62,14 +62,25 @@ export default function MatchesPage() {
         </Link>
       </header>
 
-      <div className="flex-1 px-4 py-4 space-y-6">
+      {/* 데스크탑 헤더 */}
+      <header className="hidden lg:flex sticky top-0 z-10 bg-[#0D1B3E]/80 backdrop-blur-sm px-8 py-4 items-center justify-between border-b border-[#243570]">
+        <h1 className="text-xl font-bold text-white">경기 일정</h1>
+        <Link
+          href="/matches/new"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#22C55E] text-white font-semibold text-sm hover:bg-[#4ADE80] transition-colors"
+        >
+          <span className="font-bold text-base leading-none">+</span> 경기 등록
+        </Link>
+      </header>
+
+      <div className="flex-1 px-4 lg:px-8 py-4 lg:py-6 space-y-6">
         {/* 예정 경기 */}
         {upcoming.length > 0 && (
           <section>
             <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
               예정
             </h2>
-            <div className="space-y-3">
+            <div className="grid gap-3 lg:grid-cols-2">
               {upcoming.map((m) => (
                 <Link key={m.id} href={`/matches/${m.id}`}>
                   <MatchCard match={m} />
@@ -84,7 +95,7 @@ export default function MatchesPage() {
           <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
             완료
           </h2>
-          <div className="space-y-3">
+          <div className="grid gap-3 lg:grid-cols-2">
             {done.map((m) => (
               <Link key={m.id} href={`/matches/${m.id}`}>
                 <MatchCard match={m} />

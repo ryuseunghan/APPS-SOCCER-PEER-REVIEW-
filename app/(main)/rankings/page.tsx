@@ -39,8 +39,8 @@ export default function RankingsPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#1B2B5E] px-4 py-3 border-b border-[#243570]">
+      {/* 모바일 헤더 */}
+      <header className="lg:hidden sticky top-0 z-10 bg-[#1B2B5E] px-4 py-3 border-b border-[#243570]">
         <div className="flex items-center gap-3">
           <ClubBadge size={40} />
           <div>
@@ -52,7 +52,16 @@ export default function RankingsPage() {
         </div>
       </header>
 
-      <div className="flex-1 px-4 py-4 space-y-4">
+      {/* 데스크탑 헤더 */}
+      <header className="hidden lg:flex sticky top-0 z-10 bg-[#0D1B3E]/80 backdrop-blur-sm px-8 py-4 items-center gap-3 border-b border-[#243570]">
+        <ClubBadge size={36} />
+        <div>
+          <h1 className="text-xl font-bold text-white leading-tight">랭킹 보드</h1>
+          <p className="text-[#F59E0B] text-xs font-semibold">Happy Life Football Club</p>
+        </div>
+      </header>
+
+      <div className="flex-1 px-4 lg:px-8 py-4 lg:py-6 space-y-4 lg:max-w-2xl">
         {/* Category filter — static display, interactivity needs client component */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {(Object.keys(categoryLabels) as Category[]).map((cat) => (
