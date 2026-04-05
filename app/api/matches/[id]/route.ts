@@ -5,14 +5,15 @@ import { getMatchById } from "@/lib/queries/matches";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const match = await getMatchById(params.id);
+  const { id } = await params;
+  const match = await getMatchById(id);
   if (!match) {
     return NextResponse.json({ error: "Match not found" }, { status: 404 });
   }
