@@ -1,46 +1,16 @@
+// Design Ref: §6.1 — Server Component에서 getMatches() 직접 쿼리
 import Link from "next/link";
+import { auth } from "@/auth";
 import ReviewStatusBadge from "@/components/ReviewStatusBadge";
 import ClubBadge from "@/components/ClubBadge";
+import { getMatches } from "@/lib/queries/matches";
 
-const matches = [
-  {
-    id: "1",
-    weekday: "토",
-    date: "04.06",
-    time: "10:00",
-    place: "풋살파크 강남 B코트",
-    joinedCount: 8,
-    totalCount: 10,
-    reviewStatus: "pending" as const,
-    upcoming: true,
-  },
-  {
-    id: "2",
-    weekday: "목",
-    date: "04.03",
-    time: "19:00",
-    place: "마포 실내풋살장",
-    joinedCount: 10,
-    totalCount: 10,
-    reviewStatus: "completed" as const,
-    upcoming: false,
-  },
-  {
-    id: "3",
-    weekday: "토",
-    date: "03.28",
-    time: "10:00",
-    place: "강남 실내풋살",
-    joinedCount: 8,
-    totalCount: 8,
-    reviewStatus: "completed" as const,
-    upcoming: false,
-  },
-];
+export default async function MatchesPage() {
+  const session = await auth();
+  const matches = await getMatches(session?.user?.id ?? undefined);
 
-export default function MatchesPage() {
-  const upcoming = matches.filter((m) => m.upcoming);
-  const done = matches.filter((m) => !m.upcoming);
+  const upcoming = matches.filter((m) => m.review_status === "upcoming");
+  const done = matches.filter((m) => m.review_status !== "upcoming");
 
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
@@ -74,6 +44,15 @@ export default function MatchesPage() {
       </header>
 
       <div className="flex-1 px-4 lg:px-8 py-4 lg:py-6 space-y-6">
+        {matches.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-[#7B9DD4] text-sm">등록된 경기가 없습니다.</p>
+            <Link href="/matches/new" className="mt-4 inline-block text-[#22C55E] text-sm font-medium underline underline-offset-2">
+              첫 경기를 등록해보세요
+            </Link>
+          </div>
+        )}
+
         {/* 예정 경기 */}
         {upcoming.length > 0 && (
           <section>
@@ -81,70 +60,93 @@ export default function MatchesPage() {
               예정
             </h2>
             <div className="grid gap-3 lg:grid-cols-2">
-              {upcoming.map((m) => (
-                <Link key={m.id} href={`/matches/${m.id}`}>
-                  <MatchCard match={m} />
-                </Link>
-              ))}
+              {upcoming.map((m) => {
+                const d = new Date(`${m.date}T00:00:00`);
+                const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+                const weekday = weekdays[d.getDay()];
+                const dateLabel = `${d.getMonth() + 1 < 10 ? "0" : ""}${d.getMonth() + 1}.${d.getDate() < 10 ? "0" : ""}${d.getDate()}`;
+                return (
+                  <Link key={m.id} href={`/matches/${m.id}`}>
+                    <MatchCard
+                      weekday={weekday}
+                      date={dateLabel}
+                      time={m.time.slice(0, 5)}
+                      place={m.place}
+                      participantCount={m.participant_count}
+                      reviewStatus={m.review_status}
+                    />
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
 
         {/* 완료 경기 */}
-        <section>
-          <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
-            완료
-          </h2>
-          <div className="grid gap-3 lg:grid-cols-2">
-            {done.map((m) => (
-              <Link key={m.id} href={`/matches/${m.id}`}>
-                <MatchCard match={m} />
-              </Link>
-            ))}
-          </div>
-        </section>
+        {done.length > 0 && (
+          <section>
+            <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
+              완료
+            </h2>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {done.map((m) => {
+                const d = new Date(`${m.date}T00:00:00`);
+                const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+                const weekday = weekdays[d.getDay()];
+                const dateLabel = `${d.getMonth() + 1 < 10 ? "0" : ""}${d.getMonth() + 1}.${d.getDate() < 10 ? "0" : ""}${d.getDate()}`;
+                return (
+                  <Link key={m.id} href={`/matches/${m.id}`}>
+                    <MatchCard
+                      weekday={weekday}
+                      date={dateLabel}
+                      time={m.time.slice(0, 5)}
+                      place={m.place}
+                      participantCount={m.participant_count}
+                      reviewStatus={m.review_status}
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
 }
 
 function MatchCard({
-  match,
+  weekday,
+  date,
+  time,
+  place,
+  participantCount,
+  reviewStatus,
 }: {
-  match: {
-    weekday: string;
-    date: string;
-    time: string;
-    place: string;
-    joinedCount: number;
-    totalCount: number;
-    reviewStatus: "pending" | "in_progress" | "completed" | "closed";
-    upcoming: boolean;
-  };
+  weekday: string;
+  date: string;
+  time: string;
+  place: string;
+  participantCount: number;
+  reviewStatus: "upcoming" | "pending" | "in_progress" | "completed" | "closed";
 }) {
   return (
     <div className="bg-[#1B2B5E] rounded-xl p-4 space-y-2 hover:bg-[#243570] transition-colors">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-white font-semibold">
-            {match.weekday}{" "}
-            <span className="text-[#22C55E]">{match.date}</span>{" "}
-            {match.time}
+            {weekday}{" "}
+            <span className="text-[#22C55E]">{date}</span>{" "}
+            {time}
           </p>
-          <p className="text-[#7B9DD4] text-sm mt-0.5">{match.place}</p>
+          <p className="text-[#7B9DD4] text-sm mt-0.5">{place}</p>
         </div>
-        <ReviewStatusBadge status={match.reviewStatus} />
+        <ReviewStatusBadge status={reviewStatus} />
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="w-24 h-1.5 bg-[#243570] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#22C55E] rounded-full"
-            style={{ width: `${(match.joinedCount / match.totalCount) * 100}%` }}
-          />
-        </div>
         <span className="text-xs text-[#7B9DD4]">
-          참가 {match.joinedCount} / {match.totalCount}명
+          참가 {participantCount}명
         </span>
       </div>
     </div>

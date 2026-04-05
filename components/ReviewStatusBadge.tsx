@@ -1,10 +1,14 @@
-type ReviewStatus = "pending" | "in_progress" | "completed" | "closed";
+type ReviewStatus = "upcoming" | "pending" | "in_progress" | "completed" | "closed";
 
 interface ReviewStatusBadgeProps {
   status: ReviewStatus;
 }
 
 const config: Record<ReviewStatus, { label: string; className: string }> = {
+  upcoming: {
+    label: "예정",
+    className: "bg-[#3B5CB8]/20 text-[#7B9DD4] border border-[#3B5CB8]/40",
+  },
   pending: {
     label: "리뷰 대기",
     className: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40",

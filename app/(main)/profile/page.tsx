@@ -1,30 +1,27 @@
+// Design Ref: §6.5 — Server Component에서 getProfile() 직접 쿼리
+// Plan SC: SC-05 프로필 페이지가 실DB 기반 평점·경기수·MVP 횟수 표시
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Avatar from "@/components/Avatar";
 import RatingStar from "@/components/RatingStar";
 import GrowthChart from "./GrowthChart";
 import ClubBadge from "@/components/ClubBadge";
+import { getProfile } from "@/lib/queries/profile";
 
-const myProfile = {
-  name: "박정훈",
-  position: "DF",
-  gamesPlayed: 12,
-  overall: 4.2,
-  skill: 4.3,
-  stamina: 3.9,
-  teamplay: 4.4,
-  mvpCount: 2,
-  momCount: 4,
-};
+export default async function ProfilePage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/");
 
-const growthData = [
-  { label: "3/1", value: 3.6 },
-  { label: "3/8", value: 3.8 },
-  { label: "3/15", value: 3.9 },
-  { label: "3/22", value: 4.0 },
-  { label: "3/28", value: 3.8 },
-  { label: "4/3", value: 4.2 },
-];
+  const profile = await getProfile(session.user.id);
 
-export default function ProfilePage() {
+  if (!profile) {
+    return (
+      <div className="flex flex-col min-h-full bg-[#0D1B3E] items-center justify-center">
+        <p className="text-[#7B9DD4]">프로필을 불러올 수 없습니다.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-full bg-[#0D1B3E]">
       {/* 모바일 헤더 */}
@@ -45,14 +42,13 @@ export default function ProfilePage() {
           <div className="space-y-5">
             <div className="bg-[#1B2B5E] rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-4">
-                <Avatar name={myProfile.name} size="xl" />
+                <Avatar name={profile.name} size="xl" />
                 <div className="flex-1">
-                  <p className="text-white font-bold text-xl">{myProfile.name}</p>
+                  <p className="text-white font-bold text-xl">{profile.name}</p>
                   <p className="text-[#7B9DD4] text-sm">
-                    {myProfile.position} · 경기 {myProfile.gamesPlayed}회
+                    {profile.position ?? "-"} · 경기 {profile.games_played}회
                   </p>
                 </div>
-                {/* 소속 클럽 배지 */}
                 <div className="flex flex-col items-center gap-1">
                   <ClubBadge size={44} />
                   <span className="text-[#F59E0B] text-[9px] font-semibold leading-none text-center">
@@ -62,16 +58,16 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <RatingStar value={myProfile.overall} size="lg" />
-                <span className="text-[#22C55E] text-2xl font-bold ml-1">{myProfile.overall}</span>
+                <RatingStar value={profile.overall} size="lg" />
+                <span className="text-[#22C55E] text-2xl font-bold ml-1">{profile.overall}</span>
               </div>
 
               {/* Radar-style stats bars */}
               <div className="space-y-3 pt-2 border-t border-[#243570]">
                 {[
-                  { label: "경기력", value: myProfile.skill },
-                  { label: "체력", value: myProfile.stamina },
-                  { label: "태도", value: myProfile.teamplay },
+                  { label: "경기력", value: profile.skill },
+                  { label: "체력", value: profile.stamina },
+                  { label: "태도", value: profile.teamplay },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex items-center gap-3">
                     <span className="text-[#7B9DD4] text-sm w-14">{label}</span>
@@ -90,11 +86,11 @@ export default function ProfilePage() {
               <div className="flex gap-4 pt-2 border-t border-[#243570]">
                 <div className="flex items-center gap-2">
                   <span className="text-[#F59E0B]">🏆</span>
-                  <span className="text-white text-sm font-semibold">MVP {myProfile.mvpCount}회</span>
+                  <span className="text-white text-sm font-semibold">MVP {profile.mvp_count}회</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#22C55E]">🥇</span>
-                  <span className="text-white text-sm font-semibold">MOM {myProfile.momCount}회</span>
+                  <span className="text-white text-sm font-semibold">MOM {profile.mom_count}회</span>
                 </div>
               </div>
             </div>
@@ -106,14 +102,16 @@ export default function ProfilePage() {
           </div>
 
           {/* 오른쪽: 성장 그래프 */}
-          <section>
-            <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
-              성장 그래프 (최근 6경기)
-            </h2>
-            <div className="bg-[#1B2B5E] rounded-2xl p-4">
-              <GrowthChart data={growthData} />
-            </div>
-          </section>
+          {profile.growth_data.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-[#7B9DD4] mb-3 uppercase tracking-wide">
+                성장 그래프 (최근 {profile.growth_data.length}경기)
+              </h2>
+              <div className="bg-[#1B2B5E] rounded-2xl p-4">
+                <GrowthChart data={profile.growth_data} />
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>

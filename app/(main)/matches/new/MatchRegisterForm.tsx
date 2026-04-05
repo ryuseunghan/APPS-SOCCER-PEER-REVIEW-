@@ -1,25 +1,16 @@
 "use client";
 
-import { useState } from "react";
+// Design Ref: §6.2 — Client Component: useEffect로 /api/users 로드 후 멤버 목록 렌더
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Avatar from "@/components/Avatar";
-
-// Happy Life FC 전체 멤버 목록
-const CLUB_MEMBERS = [
-  { id: "1", name: "김민준", position: "MF" },
-  { id: "2", name: "이수진", position: "FW" },
-  { id: "3", name: "박정훈", position: "DF" },
-  { id: "4", name: "최재원", position: "GK" },
-  { id: "5", name: "홍현우", position: "MF" },
-  { id: "6", name: "박준혁", position: "FW" },
-  { id: "7", name: "최서연", position: "MF" },
-  { id: "8", name: "홍태양", position: "DF" },
-  { id: "9", name: "김민서", position: "MF" },
-  { id: "10", name: "도현우", position: "GK" },
-];
+import type { ClubMember } from "@/lib/queries/users";
 
 export default function MatchRegisterForm() {
   const router = useRouter();
+
+  const [members, setMembers] = useState<ClubMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(true);
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -29,6 +20,16 @@ export default function MatchRegisterForm() {
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((data) => {
+        setMembers(data);
+        setMembersLoading(false);
+      })
+      .catch(() => setMembersLoading(false));
+  }, []);
 
   function toggleMember(id: string) {
     setSelectedMembers((prev) => {
@@ -43,7 +44,7 @@ export default function MatchRegisterForm() {
   }
 
   function selectAll() {
-    setSelectedMembers(new Set(CLUB_MEMBERS.map((m) => m.id)));
+    setSelectedMembers(new Set(members.map((m) => m.id)));
   }
 
   function clearAll() {
@@ -53,8 +54,6 @@ export default function MatchRegisterForm() {
   function validate(): string {
     if (!date) return "날짜를 입력해주세요.";
     if (!place.trim()) return "장소를 입력해주세요.";
-    if (ourScore === "" || opponentScore === "") return "스코어를 입력해주세요.";
-    if (isNaN(Number(ourScore)) || isNaN(Number(opponentScore))) return "스코어는 숫자로 입력해주세요.";
     if (selectedMembers.size === 0) return "참여 멤버를 1명 이상 선택해주세요.";
     return "";
   }
@@ -69,8 +68,26 @@ export default function MatchRegisterForm() {
     setError("");
     setSubmitting(true);
 
-    // TODO: API 연동 시 여기에 POST 요청 추가
-    await new Promise((r) => setTimeout(r, 600)); // mock delay
+    const res = await fetch("/api/matches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date,
+        time: time || "00:00",
+        place,
+        our_score: ourScore !== "" ? Number(ourScore) : null,
+        opponent_score: opponentScore !== "" ? Number(opponentScore) : null,
+        participant_ids: [...selectedMembers],
+      }),
+    });
+
+    setSubmitting(false);
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error ?? "경기 등록에 실패했습니다.");
+      return;
+    }
 
     router.push("/matches");
   }
@@ -142,7 +159,7 @@ export default function MatchRegisterForm() {
 
             {/* 스코어 */}
             <section className="space-y-3">
-              <h2 className="text-sm font-semibold text-[#7B9DD4] uppercase tracking-wide">최종 스코어 *</h2>
+              <h2 className="text-sm font-semibold text-[#7B9DD4] uppercase tracking-wide">최종 스코어 (선택)</h2>
 
               <div className="bg-[#1B2B5E] rounded-2xl p-4">
                 <div className="flex items-center justify-center gap-4">
@@ -224,36 +241,42 @@ export default function MatchRegisterForm() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
-                {CLUB_MEMBERS.map((member) => {
-                  const selected = selectedMembers.has(member.id);
-                  return (
-                    <button
-                      key={member.id}
-                      type="button"
-                      onClick={() => toggleMember(member.id)}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-                        selected
-                          ? "bg-[#22C55E]/20 ring-2 ring-[#22C55E]"
-                          : "bg-[#1B2B5E] hover:bg-[#243570]"
-                      }`}
-                    >
-                      <Avatar
-                        name={member.name}
-                        size="lg"
-                        isSelected={selected}
-                      />
-                      <div className="text-center">
-                        <p className="text-white text-xs font-medium leading-tight">{member.name}</p>
-                        <p className="text-[#7B9DD4] text-[10px]">{member.position}</p>
-                      </div>
-                      {selected && (
-                        <span className="text-[#22C55E] text-[10px] font-bold">✓ 참여</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              {membersLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-[#7B9DD4] text-sm">멤버 목록 로딩 중...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+                  {members.map((member) => {
+                    const selected = selectedMembers.has(member.id);
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => toggleMember(member.id)}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+                          selected
+                            ? "bg-[#22C55E]/20 ring-2 ring-[#22C55E]"
+                            : "bg-[#1B2B5E] hover:bg-[#243570]"
+                        }`}
+                      >
+                        <Avatar
+                          name={member.name}
+                          size="lg"
+                          isSelected={selected}
+                        />
+                        <div className="text-center">
+                          <p className="text-white text-xs font-medium leading-tight">{member.name}</p>
+                          <p className="text-[#7B9DD4] text-[10px]">{member.position ?? "-"}</p>
+                        </div>
+                        {selected && (
+                          <span className="text-[#22C55E] text-[10px] font-bold">✓ 참여</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </section>
 
             {/* 선택 요약 */}
@@ -261,7 +284,7 @@ export default function MatchRegisterForm() {
               <div className="bg-[#1B2B5E] rounded-xl px-4 py-3">
                 <p className="text-xs text-[#7B9DD4] mb-2">참여 멤버</p>
                 <div className="flex flex-wrap gap-2">
-                  {CLUB_MEMBERS.filter((m) => selectedMembers.has(m.id)).map((m) => (
+                  {members.filter((m) => selectedMembers.has(m.id)).map((m) => (
                     <span
                       key={m.id}
                       className="px-2 py-0.5 bg-[#22C55E]/20 text-[#22C55E] rounded-full text-xs font-medium"
