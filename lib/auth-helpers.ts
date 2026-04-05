@@ -18,6 +18,9 @@ export async function getUserByUsername(
     .eq("username", username)
     .single();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    console.log(`[auth-db] err=${error?.code}:${error?.message} data=${!!data}`);
+    return null;
+  }
   return data as DbUser;
 }
