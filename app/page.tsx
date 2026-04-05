@@ -7,7 +7,7 @@ import Link from "next/link";
 import ClubBadge from "@/components/ClubBadge";
 
 export default function LandingPage() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,14 +19,14 @@ export default function LandingPage() {
     setError("");
 
     const result = await signIn("credentials", {
-      username,
+      email,
       password,
       redirect: false,
     });
 
     setLoading(false);
     if (result?.error) {
-      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
+      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
     } else {
       router.push("/home");
     }
@@ -59,10 +59,10 @@ export default function LandingPage() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            type="text"
-            placeholder="아이디"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="이메일"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="h-14 w-full rounded-xl bg-white/10 px-4 text-white placeholder-[#7B9DD4] border border-white/10 focus:outline-none focus:border-[#F59E0B] transition-colors"
           />
