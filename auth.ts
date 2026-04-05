@@ -15,21 +15,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string;
         if (!username || !password) return null;
 
-        console.log("[auth] SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING");
-        console.log("[auth] SERVICE_KEY:", process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING");
-
         let user;
+        let dbError: unknown = null;
         try {
           user = await getUserByUsername(username);
         } catch (e) {
-          console.error("[auth] getUserByUsername error:", e);
-          return null;
+          dbError = e;
         }
-        console.log("[auth] user found:", !!user);
-        if (!user) return null;
+        console.log(
+          `[auth-debug] url=${process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING"} key=${process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING"} user=${!!user} dbErr=${dbError ? String(dbError) : "none"}`
+        );
+        if (dbError || !user) return null;
 
         const valid = await bcrypt.compare(password, user.password_hash);
-        console.log("[auth] password valid:", valid);
+        console.log(`[auth-debug] pwValid=${valid}`);
         if (!valid) return null;
 
         return {
